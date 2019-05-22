@@ -1,10 +1,7 @@
 package pers.carl.algorithm.interview.net_ease_tetris;
 
-import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * 小易有一个古老的游戏机，上面有着经典的游戏俄罗斯方块。因为它比较古老，所以规则和一般的俄罗斯方块不同。
@@ -48,71 +45,41 @@ public class Solution {
         }
 
         //因为是1*1的方块，所以只要有落在每一列的方块就会得一分
-        List<Integer> standardList = new ArrayList<>();
+        Map<Integer, Integer> columnBlockNumMap = new HashMap<>();
         for (int i = 1; i <= n; i++){
-            //满足这样的组合就加一分
-            standardList.add(i);
+            //初始化每列方块数map
+            columnBlockNumMap.put(i,0);
+        }
+        //统计每一列的方块数
+        for (Integer columnIndex : blockColumnIndex){
+            Integer frequency = columnBlockNumMap.get(columnIndex);
+            if(frequency == null){
+                continue;
+            }
+            columnBlockNumMap.put(columnIndex,frequency + 1);
         }
 
-       /* blockColumnIndex.stream().peek(columnIndex ->{
+        //如果某一列没有方块则是0分
+        for (Integer column : columnBlockNumMap.keySet()){
+            if(columnBlockNumMap.get(column) == 0){
+                return 0;
+            }
+        }
 
+        IntSummaryStatistics statistics = columnBlockNumMap
+                .values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .summaryStatistics();
 
-        })*/
-        return 0;
+        return statistics.getMin();
     }
 
 
     public static void main(String[] args) {
 
-        int n = 0, m = 0;
-        List<Integer> blockColumnIndex = new ArrayList<>();
-        Scanner scanner = new Scanner(System.in);
-        for (;true;){
-            System.out.println("请输入n,m用空格隔开：");
-            String nMread = scanner.nextLine();
-            if(!StringUtils.isEmpty(nMread)){
-              String[] paraArray = nMread.split(separator);
-              try{
-                  n = Integer.parseInt(paraArray[0]);
-                  m = Integer.parseInt(paraArray[1]);
-                  if(m > 1000){
-                      System.out.println("m 必须小于1000");
-                      continue;
-                  }
-              }catch (IndexOutOfBoundsException | ClassCastException e){
-                  System.out.println("请输入合法的参数！");
-                  continue;
-              }
-            }
-            System.out.println("请输入Ci-Cm用空格隔开：");
-            String cIcMread = scanner.nextLine();
-            if(!StringUtils.isEmpty(nMread)){
-                String[] cIcMarray = cIcMread.split(separator);
-                if(cIcMarray.length != m){
-                    System.out.println("请输入正确的参数!");
-                    continue;
-                }
-
-                for (int i = 0; i < cIcMarray.length; i++){
-                    int ci = 0;
-                    try{
-                        ci = Integer.parseInt(cIcMarray[i]);
-                    }catch (ClassCastException e){
-                        System.out.println("请输入正确的ci!");
-                        continue;
-                    }
-                    if(ci < 1 || ci > n){
-                        System.out.println("请输入正确的ci!");
-                        continue;
-                    }
-                    blockColumnIndex.add(ci);
-                }
-                break;
-
-            }
-
-        }
-
+        int n = 4, m = 9;
+        List<Integer> blockColumnIndex = Arrays.asList(1, 1, 2, 2, 2, 3, 1, 2, 3, 4);
         Solution solution = new Solution();
         System.out.println(solution.solution(n, m, blockColumnIndex));
 
